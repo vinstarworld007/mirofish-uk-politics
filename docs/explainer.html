@@ -1,0 +1,383 @@
+<title>MiroFish UK Politics Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a "dispatch box" briefing. Commons-green bench colour, red division-lobby accent, one live swarm up top, then a flowing pipeline diagram. */
+:root {
+  --bg: #f3f5f2;
+  --surface: #ffffff;
+  --ink: #17221d;
+  --muted: #56645c;
+  --line: #d3dbd5;
+  --bench: #1f5a45;      /* Commons green */
+  --bench-soft: #e2ece6;
+  --lobby: #b3263a;      /* division-lobby red accent */
+  --code-bg: #e9eee9;
+  --display: "Archivo Narrow", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Newsreader", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --lab: #e4003b; --con: #0087dc; --ref: #12b6cf; --ld: #f2a01a; --grn: #02a95b; --snp: #d8c62a; --rb: #6a4c93;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101714; --surface: #17201c; --ink: #e6ece8; --muted: #9fb0a6; --line: #2b3832;
+  --bench: #5fb391; --bench-soft: #1d2d26; --lobby: #f0687a; --code-bg: #1d2924; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101714; --surface: #17201c; --ink: #e6ece8; --muted: #9fb0a6; --line: #2b3832;
+  --bench: #5fb391; --bench-soft: #1d2d26; --lobby: #f0687a; --code-bg: #1d2924; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.55; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.02; font-weight: 700; }
+h2 { font-size: clamp(1.8rem, 3.6vw, 2.5rem); line-height: 1.1; font-weight: 700; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 600; color: var(--lobby); }
+.lede { font-size: 1.2rem; color: var(--muted); }
+code, .mono { font-family: var(--mono); font-size: 0.82em; }
+code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* Hero */
+.hero { padding-block: 40px 48px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 36px; align-items: center; }
+.hero > * { min-width: 0; }
+.swarm-box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+#swarm { display: block; width: 100%; aspect-ratio: 4 / 3; max-width: 100%; }
+.swarm-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); font-family: var(--display); font-size: 0.85rem; }
+.round { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); margin-right: auto; font-variant-numeric: tabular-nums; }
+button { font-family: var(--display); font-weight: 600; font-size: 0.85rem; border: 1px solid var(--bench); background: transparent; color: var(--bench); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+button:hover { background: var(--bench-soft); }
+button:focus-visible { outline: 2px solid var(--lobby); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 0 12px 12px; font-family: var(--display); font-size: 0.8rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.shares { display: flex; height: 8px; margin: 0 12px 12px; border-radius: 4px; overflow: hidden; }
+.shares div { transition: width 0.6s ease; }
+
+/* Built list */
+.built { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin-top: 28px; }
+.built > div { padding: 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.built .k { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; color: var(--muted); }
+.built p { font-size: 1rem; }
+
+/* Pipeline */
+.diagram { margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.diagram svg { display: block; min-width: 820px; width: 100%; height: auto; }
+.node rect { fill: var(--bg); stroke: var(--line); stroke-width: 1.2; }
+.node.cloud rect { fill: var(--bench-soft); stroke: var(--bench); stroke-dasharray: 4 3; }
+.node.hot rect { stroke: var(--lobby); stroke-width: 1.6; }
+.node text { fill: var(--ink); font-family: var(--display); font-size: 14px; font-weight: 600; }
+.node text.sub { fill: var(--muted); font-family: var(--mono); font-size: 10.5px; font-weight: 400; }
+.zone { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+.zone-label { fill: var(--muted); font-family: var(--display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.flow { fill: none; stroke: var(--line); stroke-width: 2; }
+.flow.cloudlink { stroke-dasharray: 3 4; }
+.pkt { fill: var(--lobby); }
+.pkt.g { fill: var(--bench); }
+.stage-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px 32px; margin-top: 32px; }
+.stage { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+.stage b { font-family: var(--display); font-size: 1.6rem; color: var(--bench); line-height: 1; }
+.stage p { font-size: 1rem; color: var(--muted); }
+.stage h3 { margin-bottom: 4px; }
+
+/* Scenarios */
+.scen { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 28px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card .file { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+.card blockquote { margin: 0; padding-left: 14px; border-left: 3px solid var(--lobby); font-style: italic; font-size: 0.98rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--display); font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; background: var(--bench-soft); color: var(--bench); }
+.ideas { columns: 2 300px; column-gap: 40px; margin: 24px 0 0; padding: 0; list-style: none; }
+.ideas li { break-inside: avoid; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 1rem; }
+.ideas li strong { font-family: var(--display); font-weight: 600; font-size: 1.02rem; }
+
+/* Run */
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 14px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 12px; }
+.steps li::before { content: counter(s); font-family: var(--display); font-weight: 700; font-size: 1.1rem; color: var(--surface); background: var(--bench); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; }
+.steps li > div { min-width: 0; }
+.notice { margin-top: 28px; border: 1px solid var(--lobby); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; }
+.notice .eyebrow { color: var(--lobby); }
+footer { padding-block: 32px 48px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--line); }
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; }
+  section { padding-block: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shares div { transition: none; }
+}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="stack">
+      <span class="eyebrow">Built on your PC · C:\Users\Home\Apps\MiroFish</span>
+      <h1>A UK politics lab where AI voters argue it out</h1>
+      <p class="lede">MiroFish turns a briefing document into a crowd of AI agents with their own views. They post, reply and change their minds on simulated Twitter and Reddit, and a report agent writes up what happened. I've set it up for British politics, from the 2015 election and Brexit through to October 2026.</p>
+    </div>
+    <div class="swarm-box" aria-label="Animated illustration of AI voter agents influencing each other">
+      <canvas id="swarm" width="800" height="600"></canvas>
+      <div class="shares" id="shares" aria-hidden="true"></div>
+      <div class="legend" id="legend"></div>
+      <div class="swarm-bar">
+        <span class="round" id="round">Round 0</span>
+        <button id="inject" type="button">Inject: Reform donor charged</button>
+        <button id="reset" type="button">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="stack">
+      <span class="eyebrow">What I built</span>
+      <h2>Everything is installed and tested, and only the AI quota is missing</h2>
+      <p>Your PC started with none of the tools MiroFish needs. Here's what's on it now.</p>
+    </div>
+    <div class="built">
+      <div><span class="k">Toolchain</span><h3>Git, Python 3.12, Node.js 24, uv</h3><p>Plus the Microsoft C++ runtime the simulation engine needs on Windows.</p></div>
+      <div><span class="k">The app</span><h3>MiroFish from 666ghj/MiroFish</h3><p>Cloned into <code>repo\</code> with all frontend and backend packages installed.</p></div>
+      <div><span class="k">One-click start</span><h3>Start-MiroFish.bat</h3><p>Starts both servers and opens <code>localhost:3000</code> in your browser.</p></div>
+      <div><span class="k">Keys</span><h3>.env configured</h3><p>Google Gemini for the AI and Zep Cloud for agent memory. Both keys work.</p></div>
+      <div><span class="k">UK scenarios</span><h3>3 briefing files</h3><p>A 2015–2026 background briefing, a next-election scenario and a Brexit-reset scenario.</p></div>
+      <div><span class="k">Test run</span><h3>Reached round 6 of 15</h3><p>14 agents built from a graph of 46 entities, posting on both platforms, until the free AI quota ran out.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stack">
+      <span class="eyebrow">Architecture</span>
+      <h2>From briefing paper to a simulated public</h2>
+      <p>Two programs run on your PC, and they call two cloud services. The red dots follow your document through the pipeline. The green dots are calls out to the cloud.</p>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 980 470" role="img" aria-label="Architecture: your browser talks to the Vue frontend on port 3000, which calls the Flask backend on port 5001. The backend runs five stages: ontology, knowledge graph, agent profiles, OASIS simulation on Twitter and Reddit, and the report agent. Gemini and Zep Cloud are external services.">
+        <rect class="zone" x="12" y="28" width="956" height="300" rx="10"/>
+        <text class="zone-label" x="28" y="50">Your PC</text>
+        <rect class="zone" x="300" y="352" width="668" height="104" rx="10"/>
+        <text class="zone-label" x="316" y="374">Cloud services</text>
+
+        <!-- flows -->
+        <path id="p1" class="flow" d="M150 110 H210"/>
+        <path id="p2" class="flow" d="M150 230 H210"/>
+        <path id="pa" class="flow" d="M360 110 H420"/>
+        <path id="pb" class="flow" d="M540 110 H600"/>
+        <path id="pc" class="flow" d="M720 110 H780"/>
+        <path id="pd" class="flow" d="M840 150 V190"/>
+        <path id="pe" class="flow" d="M780 230 H720"/>
+        <path id="pf" class="flow" d="M600 230 H540"/>
+        <path id="pg" class="flow" d="M420 230 H360 L285 230"/>
+        <path id="cz1" class="flow cloudlink" d="M480 150 V400 H560"/>
+        <path id="cg1" class="flow cloudlink" d="M660 150 V300 Q660 400 760 400 H800"/>
+        <path id="cz2" class="flow cloudlink" d="M660 270 V330 Q660 400 600 400"/>
+
+        <!-- nodes -->
+        <g class="node"><rect x="30" y="80" width="120" height="60" rx="8"/><text x="46" y="106">Your browser</text><text class="sub" x="46" y="124">upload + watch</text></g>
+        <g class="node"><rect x="30" y="200" width="120" height="60" rx="8"/><text x="46" y="226">Seed docs</text><text class="sub" x="46" y="244">.md .pdf .txt</text></g>
+        <g class="node"><rect x="210" y="80" width="150" height="180" rx="8"/><text x="226" y="106">Frontend</text><text class="sub" x="226" y="124">Vue + Vite</text><text class="sub" x="226" y="140">localhost:3000</text><text x="226" y="186">Backend</text><text class="sub" x="226" y="204">Python Flask</text><text class="sub" x="226" y="220">localhost:5001</text></g>
+        <g class="node"><rect x="420" y="80" width="120" height="70" rx="8"/><text x="436" y="106">1 Ontology</text><text class="sub" x="436" y="124">who and what</text><text class="sub" x="436" y="139">matters</text></g>
+        <g class="node"><rect x="600" y="80" width="120" height="70" rx="8"/><text x="616" y="106">2 Graph</text><text class="sub" x="616" y="124">entities and</text><text class="sub" x="616" y="139">relationships</text></g>
+        <g class="node"><rect x="780" y="80" width="120" height="70" rx="8"/><text x="796" y="106">3 Agents</text><text class="sub" x="796" y="124">personas, views,</text><text class="sub" x="796" y="139">MBTI, followers</text></g>
+        <g class="node hot"><rect x="720" y="190" width="240" height="80" rx="8"/><text x="736" y="216">4 OASIS simulation</text><text class="sub" x="736" y="236">Twitter world + Reddit world</text><text class="sub" x="736" y="252">post · reply · like · follow</text></g>
+        <g class="node"><rect x="540" y="200" width="120" height="70" rx="8"/><text x="556" y="226">5 Report</text><text class="sub" x="556" y="244">ReACT analyst</text><text class="sub" x="556" y="259">+ interviews</text></g>
+        <g class="node cloud"><rect x="560" y="378" width="160" height="56" rx="8"/><text x="576" y="402">Zep Cloud</text><text class="sub" x="576" y="420">graph memory</text></g>
+        <g class="node cloud"><rect x="800" y="378" width="150" height="56" rx="8"/><text x="816" y="402">Gemini / OpenAI</text><text class="sub" x="816" y="420">LLM brains</text></g>
+
+        <!-- packets -->
+        <g class="anim">
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="0s;a7.end" fill="freeze" path="M150 230 H210" id="a0"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a0.end" fill="freeze" path="M360 110 H420" id="a1"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a1.end" fill="freeze" path="M540 110 H600" id="a2"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a2.end" fill="freeze" path="M720 110 H780" id="a3"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a3.end" fill="freeze" path="M840 150 V190" id="a4"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a4.end" fill="freeze" path="M720 230 H660" id="a5"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a5.end" fill="freeze" path="M540 235 H360" id="a6"/></circle>
+          <circle class="pkt" r="5"><animateMotion dur="1.2s" begin="a6.end" fill="freeze" path="M210 110 H150" id="a7"/></circle>
+          <circle class="pkt g" r="4"><animateMotion dur="2.4s" repeatCount="indefinite" path="M480 150 V400 H560"/></circle>
+          <circle class="pkt g" r="4"><animateMotion dur="2.8s" repeatCount="indefinite" path="M660 150 V300 Q660 400 760 400 H800"/></circle>
+          <circle class="pkt g" r="4"><animateMotion dur="2.2s" begin="1s" repeatCount="indefinite" path="M660 270 V330 Q660 400 600 400"/></circle>
+        </g>
+      </svg>
+    </div>
+    <div class="stage-list">
+      <div class="stage"><b>1</b><div><h3>Ontology</h3><p>The AI reads your briefing and the question you ask. It decides which kinds of actors matter: parties, politicians, media outlets, influencers and voter groups.</p></div></div>
+      <div class="stage"><b>2</b><div><h3>Knowledge graph</h3><p>Zep Cloud stores every person and organisation from the document, and how they connect. For example, Farage leads Reform and the Telegraph criticises Labour.</p></div></div>
+      <div class="stage"><b>3</b><div><h3>Agents</h3><p>Each entity becomes an agent with a backstory, opinions, a posting style and followers. The AI also sets the clock: how many simulated hours pass, and when people are active.</p></div></div>
+      <div class="stage"><b>4</b><div><h3>Simulation</h3><p>OASIS, a social-network engine from CAMEL-AI, runs two worlds side by side, one like Twitter and one like Reddit. Each round, agents read their feed and decide whether to post, reply, like or follow.</p></div></div>
+      <div class="stage"><b>5</b><div><h3>Report and interviews</h3><p>A report agent searches the graph and the posts to answer your question. Afterwards you can interview any agent: ask the Red Wall voter why they switched.</p></div></div>
+      <div class="stage"><b>+</b><div><h3>Inject and rerun</h3><p>Change one fact, for example "Farage resigns", and run again. Comparing runs shows what moves opinion, which is more useful than any single forecast.</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stack">
+      <span class="eyebrow">What you can simulate</span>
+      <h2>Three UK briefings, ready to upload</h2>
+      <p>These are in <code>political-scenarios\uk\</code>. Always upload the background briefing together with one scenario file, then paste that scenario's question.</p>
+    </div>
+    <div class="scen">
+      <article class="card">
+        <span class="file">00-uk-politics-2015-2026.md</span>
+        <h3>Background: 2015 to now</h3>
+        <p>The 2015 majority, the 52–48 referendum, the May deadlock, "Get Brexit Done", Truss's 49 days, Labour's 411-seat landslide, Reform's surge, the May 2026 results in Wales and Scotland, Burnham replacing Starmer, and the October 2026 polls.</p>
+        <div class="chips"><span class="chip">Context file</span><span class="chip">Sources checked 21 Oct 2026</span></div>
+      </article>
+      <article class="card">
+        <span class="file">01-next-general-election.md</span>
+        <h3>The road to the next election</h3>
+        <blockquote>Can Labour hold its recovery under Burnham, and who becomes the main right-wing challenger: the Conservatives, Reform or Restore Britain?</blockquote>
+        <div class="chips"><span class="chip">Burnham's first budget</span><span class="chip">Reform donor charged</span><span class="chip">Farage steps down</span><span class="chip">Con–Reform pact</span></div>
+      </article>
+      <article class="card">
+        <span class="file">02-brexit-ten-years-on.md</span>
+        <h3>Brexit ten years on</h3>
+        <blockquote>Burnham proposes a customs union and youth mobility deal with the EU. Do Leave and Remain voters move, and does support for rejoining grow?</blockquote>
+        <div class="chips"><span class="chip">ECJ role demanded</span><span class="chip">60% rejoin poll</span><span class="chip">Car plant investment</span><span class="chip">Farage calls a referendum</span></div>
+      </article>
+    </div>
+    <h3 style="margin-top:40px">More ideas you can write a one-page briefing for</h3>
+    <ul class="ideas">
+      <li><strong>Counterfactual 2016.</strong> Remain wins 52–48. How do Farage, the Conservatives and Leave voters react online?</li>
+      <li><strong>Scottish independence push.</strong> After the SNP's 2026 win, Swinney demands a second referendum.</li>
+      <li><strong>Plaid-led Wales.</strong> Does a Plaid minority government survive Reform as the opposition?</li>
+      <li><strong>Small boats summer.</strong> Crossings hit a record month and Restore Britain stages rallies.</li>
+      <li><strong>NHS winter crisis.</strong> How do nurses, patients, the Mail and the Guardian frame it?</li>
+      <li><strong>A by-election.</strong> A Red Wall seat with a four-way split. Who wins the online argument?</li>
+      <li><strong>Leaders' debate.</strong> Burnham against Badenoch against Farage. Whose clips go viral?</li>
+      <li><strong>Real documents.</strong> Upload an actual budget, manifesto or news article as the seed.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stack">
+      <span class="eyebrow">Running it</span>
+      <h2>Five steps once billing is on</h2>
+    </div>
+    <ol class="steps">
+      <li><div><strong>Turn on Gemini billing</strong> in Google AI Studio. You keep the same key. Alternatively, add credit to OpenAI and ask me to switch back.</div></li>
+      <li><div>Double-click <code>C:\Users\Home\Apps\MiroFish\Start-MiroFish.bat</code> and leave the black window open.</div></li>
+      <li><div>At <code>localhost:3000</code>, upload <code>00-uk-politics-2015-2026.md</code> and one scenario file.</div></li>
+      <li><div>Paste the scenario's prediction question, and start with 10–20 rounds.</div></li>
+      <li><div>Read the report, interview a few agents, then inject one change and run again to compare.</div></li>
+    </ol>
+    <div class="notice">
+      <span class="eyebrow">Before you run</span>
+      <p>The free Gemini tier allows 20 requests a day, and one simulation needs several hundred. With billing on, a 15-round run on Gemini Flash should cost well under £1. Treat results as a model of how these groups might argue, not as a poll.</p>
+    </div>
+  </section>
+
+  <footer>
+    MiroFish is open source (AGPL-3.0) by 666ghj, built on OASIS from CAMEL-AI. The UK briefing was compiled on 21 October 2026, and the 2026 events come from news coverage at that date.
+  </footer>
+</div>
+
+<script>
+(function () {
+  const css = getComputedStyle(document.documentElement);
+  const parties = [
+    { k: "lab", n: "Labour", w: 28 }, { k: "con", n: "Conservative", w: 22 }, { k: "ref", n: "Reform UK", w: 22 },
+    { k: "ld", n: "Lib Dem", w: 10 }, { k: "grn", n: "Green", w: 9 }, { k: "rb", n: "Restore", w: 4 }, { k: "snp", n: "SNP", w: 3 }
+  ];
+  // Rough left–right placement so neighbours influence plausibly
+  const pos = { lab: 0.35, con: 0.68, ref: 0.82, ld: 0.48, grn: 0.15, rb: 0.95, snp: 0.3 };
+  const canvas = document.getElementById("swarm");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height, N = 170;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let agents = [], round = 0, frame = 0, pulse = null;
+
+  function color(k) { return css.getPropertyValue("--" + k).trim(); }
+  function pick() {
+    let r = Math.random() * 98, acc = 0;
+    for (const p of parties) { acc += p.w; if (r < acc) return p.k; }
+    return "lab";
+  }
+  function init() {
+    agents = [];
+    for (let i = 0; i < N; i++) {
+      const k = pick();
+      agents.push({ k, x: (pos[k] * 0.75 + 0.125) * W + (Math.random() - 0.5) * 220, y: 60 + Math.random() * (H - 120), vx: 0, vy: 0, flash: 0 });
+    }
+    round = 0; updateUI();
+  }
+  function shares() {
+    const c = {}; parties.forEach(p => c[p.k] = 0);
+    agents.forEach(a => c[a.k]++);
+    return c;
+  }
+  function updateUI() {
+    const c = shares();
+    document.getElementById("round").textContent = "Round " + round + " · " + N + " agents";
+    document.getElementById("legend").innerHTML = parties.map(p =>
+      '<span><i style="background:' + color(p.k) + '"></i>' + p.n + " " + Math.round(c[p.k] / N * 100) + "%</span>").join("");
+    document.getElementById("shares").innerHTML = parties.map(p =>
+      '<div style="width:' + (c[p.k] / N * 100) + '%;background:' + color(p.k) + '"></div>').join("");
+  }
+  function step() {
+    for (const a of agents) {
+      const tx = (pos[a.k] * 0.75 + 0.125) * W;
+      a.vx += (tx - a.x) * 0.0006 + (Math.random() - 0.5) * 0.25;
+      a.vy += (Math.random() - 0.5) * 0.25;
+      a.vx *= 0.94; a.vy *= 0.94;
+      a.x += a.vx; a.y += a.vy;
+      if (a.y < 20 || a.y > H - 20) a.vy *= -1;
+      a.y = Math.max(16, Math.min(H - 16, a.y));
+      a.x = Math.max(16, Math.min(W - 16, a.x));
+      if (a.flash > 0) a.flash -= 0.02;
+    }
+  }
+  function influence() {
+    // One "round": a few agents read nearby posts and some switch to a neighbour's party
+    for (let t = 0; t < 6; t++) {
+      const a = agents[Math.floor(Math.random() * N)];
+      let best = null, bd = 1e9;
+      for (const b of agents) {
+        if (b === a || b.k === a.k) continue;
+        const d = (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+        if (d < bd) { bd = d; best = b; }
+      }
+      if (best && bd < 70 * 70 && Math.random() < 0.35) { a.k = best.k; a.flash = 1; }
+    }
+    round++; updateUI();
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = color("line"); ctx.lineWidth = 1;
+    for (let i = 0; i < N; i += 3) {
+      const a = agents[i], b = agents[(i * 7 + 11) % N];
+      if ((a.x - b.x) ** 2 + (a.y - b.y) ** 2 < 90 * 90) { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+    }
+    if (pulse) {
+      ctx.beginPath(); ctx.strokeStyle = color("lobby"); ctx.lineWidth = 2; ctx.globalAlpha = Math.max(0, 1 - pulse.r / 420);
+      ctx.arc(pulse.x, pulse.y, pulse.r, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+      pulse.r += 6; if (pulse.r > 420) pulse = null;
+    }
+    for (const a of agents) {
+      ctx.beginPath(); ctx.fillStyle = color(a.k);
+      ctx.arc(a.x, a.y, 5 + a.flash * 4, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = color("muted"); ctx.font = "600 15px 'Archivo Narrow', Arial, sans-serif";
+    ctx.fillText("LEFT", 18, H - 14); ctx.textAlign = "right"; ctx.fillText("RIGHT", W - 18, H - 14); ctx.textAlign = "left";
+  }
+  function loop() {
+    step(); draw();
+    if (++frame % 40 === 0) influence();
+    requestAnimationFrame(loop);
+  }
+  document.getElementById("inject").addEventListener("click", () => {
+    // Shock: some Reform agents defect, mostly to the Conservatives, some to Restore
+    pulse = { x: pos.ref * 0.75 * W + 0.125 * W, y: H / 2, r: 0 };
+    agents.forEach(a => {
+      if (a.k === "ref" && Math.random() < 0.4) { a.k = Math.random() < 0.65 ? "con" : "rb"; a.flash = 1; }
+    });
+    updateUI(); if (reduce) draw();
+  });
+  document.getElementById("reset").addEventListener("click", () => { init(); if (reduce) draw(); });
+  init();
+  if (reduce) { for (let i = 0; i < 200; i++) step(); draw(); }
+  else loop();
+})();
+</script>
